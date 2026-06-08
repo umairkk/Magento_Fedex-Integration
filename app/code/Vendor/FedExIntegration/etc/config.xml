@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <carriers>
+            <fedex_rest>
+                <active>0</active>
+                <model>Vendor\FedExIntegration\Model\Carrier\FedEx</model>
+                <title>FedEx</title>
+                <name>FedEx REST Integration</name>
+                <environment>sandbox</environment>
+                <sandbox_api_url>https://apis-sandbox.fedex.com</sandbox_api_url>
+                <production_api_url>https://apis.fedex.com</production_api_url>
+                <oauth_path>/oauth/token</oauth_path>
+                <rates_path>/rate/v1/rates/quotes</rates_path>
+                <ship_path>/ship/v1/shipments</ship_path>
+                <track_path>/track/v1/trackingnumbers</track_path>
+                <account_number/>
+                <shipper_company/>
+                <shipper_phone/>
+                <allowed_methods>FEDEX_GROUND,FEDEX_EXPRESS_SAVER,FEDEX_2_DAY,STANDARD_OVERNIGHT,PRIORITY_OVERNIGHT</allowed_methods>
+                <specificerrmsg>FedEx shipping is currently unavailable.</specificerrmsg>
+                <timeout>30</timeout>
+                <token_ttl_buffer>120</token_ttl_buffer>
+                <pickup_type>USE_SCHEDULED_PICKUP</pickup_type>
+                <packaging_type>YOUR_PACKAGING</packaging_type>
+                <default_package_length>10</default_package_length>
+                <default_package_width>8</default_package_width>
+                <default_package_height>4</default_package_height>
+                <default_dimension_unit>IN</default_dimension_unit>
+                <default_weight_unit>LB</default_weight_unit>
+            </fedex_rest>
+        </carriers>
+    </default>
+</config>
