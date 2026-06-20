@@ -19,10 +19,18 @@ class Config
      */
     public const SUPPORTED_METHODS = [
         'FEDEX_GROUND' => 'FedEx Ground',
+        'GROUND_HOME_DELIVERY' => 'FedEx Ground Home Delivery',
         'FEDEX_EXPRESS_SAVER' => 'FedEx Express Saver',
         'FEDEX_2_DAY' => 'FedEx 2Day',
         'STANDARD_OVERNIGHT' => 'FedEx Standard Overnight',
         'PRIORITY_OVERNIGHT' => 'FedEx Priority Overnight',
+    ];
+
+    /**
+     * FedEx returns Home Delivery for many residential Ground quotes.
+     */
+    private const METHOD_ALIASES = [
+        'GROUND_HOME_DELIVERY' => 'FEDEX_GROUND',
     ];
 
     public function __construct(
@@ -114,7 +122,14 @@ class Config
 
     public function isMethodAllowed(string $serviceCode, null|int|string $storeId = null): bool
     {
-        return in_array($serviceCode, $this->getAllowedMethods($storeId), true);
+        $allowedMethods = $this->getAllowedMethods($storeId);
+        if (in_array($serviceCode, $allowedMethods, true)) {
+            return true;
+        }
+
+        $configuredServiceCode = self::METHOD_ALIASES[$serviceCode] ?? null;
+
+        return $configuredServiceCode !== null && in_array($configuredServiceCode, $allowedMethods, true);
     }
 
     public function getMethodLabel(string $serviceCode): string

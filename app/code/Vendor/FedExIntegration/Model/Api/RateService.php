@@ -55,7 +55,7 @@ class RateService implements RateServiceInterface
             'requestedShipment' => [
                 'shipper' => [
                     'address' => $this->buildAddress(
-                        (string) $request->getOrigStreet(),
+                        $this->normalizeStreet($request->getOrigStreet()),
                         (string) $request->getOrigCity(),
                         (string) $request->getOrigRegionCode(),
                         (string) $request->getOrigPostcode(),
@@ -64,7 +64,7 @@ class RateService implements RateServiceInterface
                 ],
                 'recipient' => [
                     'address' => $this->buildAddress(
-                        (string) $request->getDestStreet(),
+                        $this->normalizeStreet($request->getDestStreet()),
                         (string) $request->getDestCity(),
                         (string) $request->getDestRegionCode(),
                         (string) $request->getDestPostcode(),
@@ -115,6 +115,18 @@ class RateService implements RateServiceInterface
         }
 
         return $address;
+    }
+
+    /**
+     * @param mixed $street
+     */
+    private function normalizeStreet(mixed $street): string
+    {
+        if (is_array($street)) {
+            return implode("\n", array_filter(array_map('trim', $street)));
+        }
+
+        return trim((string) $street);
     }
 
     /**
@@ -172,17 +184,31 @@ class RateService implements RateServiceInterface
     {
         $rateReplyDetails = $response['output']['rateReplyDetails'] ?? [];
         if (!is_array($rateReplyDetails)) {
+            $this->logger->warning('FedEx rate response did not include rate reply details.', [
+                'response_keys' => array_keys($response),
+                'output_keys' => isset($response['output']) && is_array($response['output'])
+                    ? array_keys($response['output'])
+                    : [],
+            ]);
             return [];
         }
 
         $rates = [];
+        $returnedServiceCodes = [];
+        $filteredServiceCodes = [];
         foreach ($rateReplyDetails as $detail) {
             if (!is_array($detail)) {
                 continue;
             }
 
             $serviceCode = (string) ($detail['serviceType'] ?? '');
+            if ($serviceCode !== '') {
+                $returnedServiceCodes[] = $serviceCode;
+            }
             if ($serviceCode === '' || !$this->config->isMethodAllowed($serviceCode, $storeId)) {
+                if ($serviceCode !== '') {
+                    $filteredServiceCodes[] = $serviceCode;
+                }
                 continue;
             }
 
@@ -200,6 +226,14 @@ class RateService implements RateServiceInterface
                 'amount' => $charge['amount'],
                 'currency' => $charge['currency'],
             ];
+        }
+
+        if ($rates === []) {
+            $this->logger->warning('FedEx rate response produced no enabled Magento rates.', [
+                'returned_service_codes' => array_values(array_unique($returnedServiceCodes)),
+                'filtered_service_codes' => array_values(array_unique($filteredServiceCodes)),
+                'allowed_methods' => $this->config->getAllowedMethods($storeId),
+            ]);
         }
 
         return $rates;

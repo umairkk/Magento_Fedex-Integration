@@ -320,6 +320,38 @@ Response fields used:
 - Logs are written to `var/log/fedex_integration.log`.
 - Ship API responses returned by `ShipmentServiceInterface` redact label content.
 
+## Checkout Rate Troubleshooting
+
+If FedEx methods do not appear in checkout:
+
+1. Confirm the carrier is enabled for the current website/store view.
+2. Confirm these required values are configured:
+   - Environment
+   - API Key (Client ID)
+   - Secret Key (Client Secret)
+   - FedEx Account Number
+   - Magento shipping origin address
+3. Flush Magento config/cache after changing credentials:
+
+   ```bash
+   bin/magento cache:clean config
+   bin/magento cache:flush
+   ```
+
+4. Review:
+
+   ```text
+   var/log/fedex_integration.log
+   ```
+
+   The module logs FedEx HTTP errors, invalid address/service responses, returned
+   FedEx service codes, filtered service codes, and missing charges without
+   logging secrets or labels.
+
+5. For residential Ground deliveries, FedEx can return `GROUND_HOME_DELIVERY`.
+   The module treats that as compatible with `FEDEX_GROUND`, so enabling FedEx
+   Ground also allows the common residential Ground response.
+
 ## Tests
 
 Example PHPUnit tests are included under:

@@ -59,7 +59,8 @@ class FedEx extends AbstractCarrier implements CarrierInterface
         $result = $this->rateResultFactory->create();
 
         try {
-            foreach ($this->rateService->getRates($request) as $rate) {
+            $rates = $this->rateService->getRates($request);
+            foreach ($rates as $rate) {
                 $method = $this->rateMethodFactory->create();
                 $method->setCarrier($this->_code);
                 $method->setCarrierTitle($this->fedExConfig->getCarrierTitle($request->getStoreId()));
@@ -69,17 +70,34 @@ class FedEx extends AbstractCarrier implements CarrierInterface
                 $method->setCost($rate['amount']);
                 $result->append($method);
             }
+
+            if ($rates === []) {
+                $this->_logger->warning('FedEx returned no checkout rates for this request.', [
+                    'destination_country' => $request->getDestCountryId(),
+                    'destination_postcode' => $request->getDestPostcode(),
+                    'package_weight' => $request->getPackageWeight(),
+                    'allowed_methods' => $this->fedExConfig->getAllowedMethods($request->getStoreId()),
+                ]);
+
+                if ($this->getConfigFlag('showmethod')) {
+                    $result->append($this->createRateError($request));
+                }
+            }
         } catch (FedExApiException|LocalizedException $exception) {
             $this->_logger->warning('FedEx rate collection failed.', [
                 'message' => $exception->getMessage(),
                 'status' => $exception instanceof FedExApiException ? $exception->getStatusCode() : null,
             ]);
-            $result->append($this->createRateError($request));
+            if ($this->getConfigFlag('showmethod')) {
+                $result->append($this->createRateError($request));
+            }
         } catch (\Throwable $exception) {
             $this->_logger->error('Unexpected FedEx rate collection failure.', [
                 'message' => $exception->getMessage(),
             ]);
-            $result->append($this->createRateError($request));
+            if ($this->getConfigFlag('showmethod')) {
+                $result->append($this->createRateError($request));
+            }
         }
 
         return $result;
