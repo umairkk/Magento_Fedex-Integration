@@ -331,6 +331,10 @@ If FedEx methods do not appear in checkout:
    - Secret Key (Client Secret)
    - FedEx Account Number
    - Magento shipping origin address
+     - Country
+     - Postcode
+     - Region/State
+     - City
 3. Flush Magento config/cache after changing credentials:
 
    ```bash
@@ -351,6 +355,11 @@ If FedEx methods do not appear in checkout:
 5. For residential Ground deliveries, FedEx can return `GROUND_HOME_DELIVERY`.
    The module treats that as compatible with `FEDEX_GROUND`, so enabling FedEx
    Ground also allows the common residential Ground response.
+
+The module falls back to Magento's configured Shipping Origin when checkout
+rate requests do not include origin fields. If the log says the `origin` or
+`destination` address is missing required fields, complete the named fields in
+Magento admin or in the customer checkout address.
 
 ## Tests
 

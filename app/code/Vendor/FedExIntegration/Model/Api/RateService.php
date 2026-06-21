@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Vendor\FedExIntegration\Model\Api;
 
+use Magento\Directory\Model\RegionFactory;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Model\Quote\Address\RateRequest;
+use Magento\Store\Model\ScopeInterface;
 use Psr\Log\LoggerInterface;
 use Vendor\FedExIntegration\Api\FedExClientInterface;
 use Vendor\FedExIntegration\Api\RateServiceInterface;
@@ -16,7 +19,9 @@ class RateService implements RateServiceInterface
     public function __construct(
         private readonly Config $config,
         private readonly FedExClientInterface $fedExClient,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
+        private readonly ScopeConfigInterface $scopeConfig,
+        private readonly RegionFactory $regionFactory
     ) {
     }
 
@@ -54,16 +59,11 @@ class RateService implements RateServiceInterface
             ],
             'requestedShipment' => [
                 'shipper' => [
-                    'address' => $this->buildAddress(
-                        $this->normalizeStreet($request->getOrigStreet()),
-                        (string) $request->getOrigCity(),
-                        (string) $request->getOrigRegionCode(),
-                        (string) $request->getOrigPostcode(),
-                        (string) $request->getOrigCountryId()
-                    ),
+                    'address' => $this->buildOriginAddress($request),
                 ],
                 'recipient' => [
                     'address' => $this->buildAddress(
+                        'destination',
                         $this->normalizeStreet($request->getDestStreet()),
                         (string) $request->getDestCity(),
                         (string) $request->getDestRegionCode(),
@@ -86,6 +86,7 @@ class RateService implements RateServiceInterface
      * @return array<string, mixed>
      */
     private function buildAddress(
+        string $addressType,
         string $street,
         string $city,
         string $regionCode,
@@ -93,8 +94,19 @@ class RateService implements RateServiceInterface
         string $countryCode,
         bool $residential = false
     ): array {
-        if ($postcode === '' || $countryCode === '') {
-            throw new LocalizedException(__('A complete shipping address is required to retrieve FedEx rates.'));
+        $missingFields = [];
+        if ($postcode === '') {
+            $missingFields[] = 'postcode';
+        }
+        if ($countryCode === '') {
+            $missingFields[] = 'country';
+        }
+        if ($missingFields !== []) {
+            throw new LocalizedException(__(
+                'FedEx %1 shipping address is missing required field(s): %2.',
+                $addressType,
+                implode(', ', $missingFields)
+            ));
         }
 
         $address = [
@@ -115,6 +127,48 @@ class RateService implements RateServiceInterface
         }
 
         return $address;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildOriginAddress(RateRequest $request): array
+    {
+        $storeId = $request->getStoreId();
+
+        return $this->buildAddress(
+            'origin',
+            $this->normalizeStreet($request->getOrigStreet())
+                ?: $this->normalizeStreet(array_filter([
+                    $this->getOriginConfigValue('street_line1', $storeId),
+                    $this->getOriginConfigValue('street_line2', $storeId),
+                ])),
+            (string) ($request->getOrigCity() ?: $this->getOriginConfigValue('city', $storeId)),
+            (string) ($request->getOrigRegionCode() ?: $this->getOriginRegionCode($storeId)),
+            (string) ($request->getOrigPostcode() ?: $this->getOriginConfigValue('postcode', $storeId)),
+            (string) ($request->getOrigCountryId() ?: $this->getOriginConfigValue('country_id', $storeId))
+        );
+    }
+
+    private function getOriginConfigValue(string $field, null|int|string $storeId = null): string
+    {
+        return trim((string) $this->scopeConfig->getValue(
+            'shipping/origin/' . $field,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        ));
+    }
+
+    private function getOriginRegionCode(null|int|string $storeId = null): string
+    {
+        $regionCode = $this->getOriginConfigValue('region_id', $storeId);
+        if ($regionCode === '') {
+            return '';
+        }
+
+        $region = $this->regionFactory->create()->load((int) $regionCode);
+
+        return (string) ($region->getCode() ?: $region->getDefaultName() ?: $regionCode);
     }
 
     /**
