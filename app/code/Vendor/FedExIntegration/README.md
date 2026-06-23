@@ -352,6 +352,10 @@ If FedEx methods do not appear in checkout:
    FedEx service codes, filtered service codes, and missing charges without
    logging secrets or labels.
 
+   FedEx rate failures are intentionally kept out of the checkout UI. If FedEx
+   returns no usable rates, Magento receives no FedEx method instead of a
+   zero-price error row that customers could confuse with a selectable method.
+
 5. For residential Ground deliveries, FedEx can return `GROUND_HOME_DELIVERY`.
    The module treats that as compatible with `FEDEX_GROUND`, so enabling FedEx
    Ground also allows the common residential Ground response.

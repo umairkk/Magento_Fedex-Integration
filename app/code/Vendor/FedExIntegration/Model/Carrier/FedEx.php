@@ -78,26 +78,16 @@ class FedEx extends AbstractCarrier implements CarrierInterface
                     'package_weight' => $request->getPackageWeight(),
                     'allowed_methods' => $this->fedExConfig->getAllowedMethods($request->getStoreId()),
                 ]);
-
-                if ($this->getConfigFlag('showmethod')) {
-                    $result->append($this->createRateError($request));
-                }
             }
         } catch (FedExApiException|LocalizedException $exception) {
             $this->_logger->warning('FedEx rate collection failed.', [
                 'message' => $exception->getMessage(),
                 'status' => $exception instanceof FedExApiException ? $exception->getStatusCode() : null,
             ]);
-            if ($this->getConfigFlag('showmethod')) {
-                $result->append($this->createRateError($request));
-            }
         } catch (\Throwable $exception) {
             $this->_logger->error('Unexpected FedEx rate collection failure.', [
                 'message' => $exception->getMessage(),
             ]);
-            if ($this->getConfigFlag('showmethod')) {
-                $result->append($this->createRateError($request));
-            }
         }
 
         return $result;
@@ -148,15 +138,5 @@ class FedEx extends AbstractCarrier implements CarrierInterface
 
             return $error;
         }
-    }
-
-    private function createRateError(RateRequest $request)
-    {
-        $error = $this->_rateErrorFactory->create();
-        $error->setCarrier($this->_code);
-        $error->setCarrierTitle($this->fedExConfig->getCarrierTitle($request->getStoreId()));
-        $error->setErrorMessage($this->fedExConfig->getSpecificErrorMessage($request->getStoreId()));
-
-        return $error;
     }
 }

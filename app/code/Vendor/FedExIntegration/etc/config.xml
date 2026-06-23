@@ -19,7 +19,6 @@
                 <shipper_company/>
                 <shipper_phone/>
                 <allowed_methods>FEDEX_GROUND,GROUND_HOME_DELIVERY,FEDEX_EXPRESS_SAVER,FEDEX_2_DAY,STANDARD_OVERNIGHT,PRIORITY_OVERNIGHT</allowed_methods>
-                <showmethod>1</showmethod>
                 <specificerrmsg>FedEx shipping is currently unavailable.</specificerrmsg>
                 <timeout>30</timeout>
                 <token_ttl_buffer>120</token_ttl_buffer>
