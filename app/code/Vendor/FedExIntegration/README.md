@@ -16,6 +16,9 @@ authentication with FedEx API Key (Client ID) and Secret Key (Client Secret).
   - FedEx 2Day
   - FedEx Standard Overnight
   - FedEx Priority Overnight
+- Free shipping by default for carts at or below 10 lbs.
+- ZIP/postcode prompt for carts over the free-shipping threshold before live
+  FedEx rates are requested.
 - Shipment creation through the FedEx Ship API.
 - PDF label persistence under `pub/media/fedex_labels`.
 - Magento shipment tracking attachment.
@@ -74,6 +77,9 @@ Important keys:
 - `shipper_company`
 - `shipper_phone`
 - `allowed_methods`
+- `free_shipping_max_weight`
+- `free_shipping_method_title`
+- `zip_prompt_message`
 - `timeout`
 - `token_ttl_buffer`
 
@@ -364,6 +370,25 @@ The module falls back to Magento's configured Shipping Origin when checkout
 rate requests do not include origin fields. If the log says the `origin` or
 `destination` address is missing required fields, complete the named fields in
 Magento admin or in the customer checkout address.
+
+## Free Shipping and ZIP Prompt
+
+By default, the carrier returns a real `$0.00` `Free Shipping` method when the
+cart package weight is at or below `10` lbs. This avoids a FedEx API call for
+orders that qualify for free shipping.
+
+For carts over `10` lbs, the carrier waits for a destination ZIP/postcode before
+requesting live FedEx rates. Until a ZIP/postcode is entered, checkout displays:
+
+```text
+Enter your zip code to see shipping rates
+```
+
+The threshold, method title, and prompt text can be changed in:
+
+```text
+Stores > Configuration > Sales > Delivery Methods > FedEx REST Integration
+```
 
 ## Tests
 

@@ -56,54 +56,69 @@
                     <label>Allowed Methods</label>
                     <source_model>Vendor\FedExIntegration\Model\Config\Source\Method</source_model>
                 </field>
-                <field id="pickup_type" translate="label" type="select" sortOrder="100"
+                <field id="free_shipping_max_weight" translate="label comment" type="text" sortOrder="100"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Free Shipping Maximum Weight</label>
+                    <comment>Orders at or below this package weight receive free shipping without a FedEx rate request.</comment>
+                    <validate>validate-number validate-zero-or-greater</validate>
+                </field>
+                <field id="free_shipping_method_title" translate="label" type="text" sortOrder="110"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Free Shipping Method Title</label>
+                </field>
+                <field id="zip_prompt_message" translate="label comment" type="text" sortOrder="120"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>ZIP Prompt Message</label>
+                    <comment>Shown for carts over the free-shipping weight until a destination ZIP/postcode is entered.</comment>
+                </field>
+                <field id="pickup_type" translate="label" type="select" sortOrder="130"
                        showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Pickup Type</label>
                     <source_model>Vendor\FedExIntegration\Model\Config\Source\PickupType</source_model>
                 </field>
-                <field id="packaging_type" translate="label" type="select" sortOrder="110"
+                <field id="packaging_type" translate="label" type="select" sortOrder="140"
                        showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Packaging Type</label>
                     <source_model>Vendor\FedExIntegration\Model\Config\Source\PackagingType</source_model>
                 </field>
-                <field id="default_weight_unit" translate="label" type="select" sortOrder="120"
+                <field id="default_weight_unit" translate="label" type="select" sortOrder="150"
                        showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Default Weight Unit</label>
                     <source_model>Vendor\FedExIntegration\Model\Config\Source\WeightUnit</source_model>
                 </field>
-                <field id="default_dimension_unit" translate="label" type="select" sortOrder="130"
+                <field id="default_dimension_unit" translate="label" type="select" sortOrder="160"
                        showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Default Dimension Unit</label>
                     <source_model>Vendor\FedExIntegration\Model\Config\Source\DimensionUnit</source_model>
                 </field>
-                <field id="default_package_length" translate="label" type="text" sortOrder="140"
+                <field id="default_package_length" translate="label" type="text" sortOrder="170"
                        showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Default Package Length</label>
                     <validate>validate-number validate-greater-than-zero</validate>
                 </field>
-                <field id="default_package_width" translate="label" type="text" sortOrder="150"
+                <field id="default_package_width" translate="label" type="text" sortOrder="180"
                        showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Default Package Width</label>
                     <validate>validate-number validate-greater-than-zero</validate>
                 </field>
-                <field id="default_package_height" translate="label" type="text" sortOrder="160"
+                <field id="default_package_height" translate="label" type="text" sortOrder="190"
                        showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Default Package Height</label>
                     <validate>validate-number validate-greater-than-zero</validate>
                 </field>
-                <field id="timeout" translate="label comment" type="text" sortOrder="170"
+                <field id="timeout" translate="label comment" type="text" sortOrder="200"
                        showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>API Timeout (seconds)</label>
                     <comment>Maximum time to wait for FedEx REST API responses.</comment>
                     <validate>validate-number validate-zero-or-greater</validate>
                 </field>
-                <field id="token_ttl_buffer" translate="label comment" type="text" sortOrder="180"
+                <field id="token_ttl_buffer" translate="label comment" type="text" sortOrder="210"
                        showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>OAuth Token Refresh Buffer (seconds)</label>
                     <comment>Token cache is refreshed this many seconds before FedEx expiration.</comment>
                     <validate>validate-number validate-zero-or-greater</validate>
                 </field>
-                <field id="specificerrmsg" translate="label" type="textarea" sortOrder="190"
+                <field id="specificerrmsg" translate="label" type="textarea" sortOrder="220"
                        showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Displayed Error Message</label>
                 </field>

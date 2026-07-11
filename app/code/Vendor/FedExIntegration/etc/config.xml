@@ -19,6 +19,9 @@
                 <shipper_company/>
                 <shipper_phone/>
                 <allowed_methods>FEDEX_GROUND,GROUND_HOME_DELIVERY,FEDEX_EXPRESS_SAVER,FEDEX_2_DAY,STANDARD_OVERNIGHT,PRIORITY_OVERNIGHT</allowed_methods>
+                <free_shipping_max_weight>10</free_shipping_max_weight>
+                <free_shipping_method_title>Free Shipping</free_shipping_method_title>
+                <zip_prompt_message>Enter your zip code to see shipping rates</zip_prompt_message>
                 <specificerrmsg>FedEx shipping is currently unavailable.</specificerrmsg>
                 <timeout>30</timeout>
                 <token_ttl_buffer>120</token_ttl_buffer>

@@ -185,6 +185,22 @@ class Config
             ?: 'FedEx shipping is currently unavailable.';
     }
 
+    public function getFreeShippingMaxWeight(null|int|string $storeId = null): float
+    {
+        return max(0.0, (float) ($this->getValue('free_shipping_max_weight', $storeId) ?: 10));
+    }
+
+    public function getFreeShippingMethodTitle(null|int|string $storeId = null): string
+    {
+        return $this->getValue('free_shipping_method_title', $storeId) ?: 'Free Shipping';
+    }
+
+    public function getZipPromptMessage(null|int|string $storeId = null): string
+    {
+        return $this->getValue('zip_prompt_message', $storeId)
+            ?: 'Enter your zip code to see shipping rates';
+    }
+
     private function getValue(string $field, null|int|string $storeId = null): string
     {
         return trim((string) $this->scopeConfig->getValue(

@@ -23,6 +23,7 @@ use Vendor\FedExIntegration\Model\Config;
 class FedEx extends AbstractCarrier implements CarrierInterface
 {
     public const CODE = Config::CARRIER_CODE;
+    private const FREE_SHIPPING_METHOD = 'free_shipping';
 
     /**
      * @var string
@@ -57,6 +58,20 @@ class FedEx extends AbstractCarrier implements CarrierInterface
         }
 
         $result = $this->rateResultFactory->create();
+        $storeId = $request->getStoreId();
+        $packageWeight = max(0.0, (float) $request->getPackageWeight());
+
+        if ($packageWeight <= $this->fedExConfig->getFreeShippingMaxWeight($storeId)) {
+            $result->append($this->createFreeShippingMethod($request));
+
+            return $result;
+        }
+
+        if (trim((string) $request->getDestPostcode()) === '') {
+            $result->append($this->createZipPrompt($request));
+
+            return $result;
+        }
 
         try {
             $rates = $this->rateService->getRates($request);
@@ -98,12 +113,37 @@ class FedEx extends AbstractCarrier implements CarrierInterface
      */
     public function getAllowedMethods(): array
     {
-        $methods = [];
+        $methods = [
+            self::FREE_SHIPPING_METHOD => $this->fedExConfig->getFreeShippingMethodTitle(),
+        ];
         foreach ($this->fedExConfig->getAllowedMethods() as $methodCode) {
             $methods[$methodCode] = $this->fedExConfig->getMethodLabel($methodCode);
         }
 
         return $methods;
+    }
+
+    private function createFreeShippingMethod(RateRequest $request)
+    {
+        $method = $this->rateMethodFactory->create();
+        $method->setCarrier($this->_code);
+        $method->setCarrierTitle($this->fedExConfig->getCarrierTitle($request->getStoreId()));
+        $method->setMethod(self::FREE_SHIPPING_METHOD);
+        $method->setMethodTitle($this->fedExConfig->getFreeShippingMethodTitle($request->getStoreId()));
+        $method->setPrice(0.0);
+        $method->setCost(0.0);
+
+        return $method;
+    }
+
+    private function createZipPrompt(RateRequest $request)
+    {
+        $error = $this->_rateErrorFactory->create();
+        $error->setCarrier($this->_code);
+        $error->setCarrierTitle($this->fedExConfig->getCarrierTitle($request->getStoreId()));
+        $error->setErrorMessage($this->fedExConfig->getZipPromptMessage($request->getStoreId()));
+
+        return $error;
     }
 
     public function isTrackingAvailable(): bool
