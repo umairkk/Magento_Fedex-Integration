@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Vendor\FedExIntegration\Api\OAuthClientInterface"
+                type="Vendor\FedExIntegration\Model\Api\OAuthClient"/>
+    <preference for="Vendor\FedExIntegration\Api\FedExClientInterface"
+                type="Vendor\FedExIntegration\Model\Api\FedExClient"/>
+    <preference for="Vendor\FedExIntegration\Api\RateServiceInterface"
+                type="Vendor\FedExIntegration\Model\Api\RateService"/>
+    <preference for="Vendor\FedExIntegration\Api\ShipmentServiceInterface"
+                type="Vendor\FedExIntegration\Model\Api\ShipmentService"/>
+    <preference for="Vendor\FedExIntegration\Api\TrackingServiceInterface"
+                type="Vendor\FedExIntegration\Model\Api\TrackingService"/>
+
+    <type name="Vendor\FedExIntegration\Logger\Logger">
+        <arguments>
+            <argument name="name" xsi:type="string">fedex_integration</argument>
+            <argument name="handlers" xsi:type="array">
+                <item name="fedex_integration" xsi:type="object">Vendor\FedExIntegration\Logger\Handler</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Vendor\FedExIntegration\Model\Api\OAuthClient">
+        <arguments>
+            <argument name="logger" xsi:type="object">Vendor\FedExIntegration\Logger\Logger</argument>
+        </arguments>
+    </type>
+    <type name="Vendor\FedExIntegration\Model\Api\FedExClient">
+        <arguments>
+            <argument name="logger" xsi:type="object">Vendor\FedExIntegration\Logger\Logger</argument>
+        </arguments>
+    </type>
+    <type name="Vendor\FedExIntegration\Model\Api\RateService">
+        <arguments>
+            <argument name="logger" xsi:type="object">Vendor\FedExIntegration\Logger\Logger</argument>
+        </arguments>
+    </type>
+    <type name="Vendor\FedExIntegration\Model\Api\ShipmentService">
+        <arguments>
+            <argument name="logger" xsi:type="object">Vendor\FedExIntegration\Logger\Logger</argument>
+        </arguments>
+    </type>
+    <type name="Vendor\FedExIntegration\Model\Carrier\FedEx">
+        <arguments>
+            <argument name="logger" xsi:type="object">Vendor\FedExIntegration\Logger\Logger</argument>
+        </arguments>
+    </type>
+</config>
